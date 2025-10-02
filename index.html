@@ -64,32 +64,7 @@
     }
 
     /* 상단 HUD */
-    .hud{
-      position:absolute; inset:12px 12px auto 12px; display:flex; gap:10px; align-items:center; z-index:5;
-    }
-    .chip{
-      background: var(--panel);
-      color:#e6ebff;
-      border:3px solid #2a2f57;
-      border-radius:12px;
-      padding:6px 12px;
-      font-weight:700;
-      text-shadow:0 1px 0 #000;
-      letter-spacing:.2px;
-    }
-    .chip .val{ color: var(--accent); margin-left:6px; }
-    .btn{
-      margin-left:auto;
-      background: linear-gradient(#2c315f, #22264a);
-      color:#fff;
-      border:3px solid #2a2f57;
-      border-radius:12px;
-      font-weight:800; letter-spacing:.4px;
-      padding:8px 16px; cursor:pointer;
-      box-shadow:0 4px 0 #0b0f2b, 0 0 0 4px #0002 inset;
-      transition: transform .05s;
-    }
-    .btn:active{ transform: translateY(2px); box-shadow:0 2px 0 #0b0f2b, 0 0 0 4px #0002 inset; }
+    .hud{\n      position:absolute; inset:12px 12px auto 12px; display:flex; gap:10px; align-items:center; z-index:5;\n    }\n    .chip{\n      background: var(--panel);\n      color:#e6ebff;\n      border:3px solid #2a2f57;\n      border-radius:12px;\n      padding:6px 12px;\n      font-weight:700;\n      text-shadow:0 1px 0 #000;\n      letter-spacing:.2px;\n      display:flex; align-items:center; gap:8px;\n    }\n    .chip .val{ color: var(--accent); margin-left:6px; }\n    .select select{\n      appearance:none;\n      background: #20264d;\n      color:#fff;\n      border:2px solid #2a2f57;\n      border-radius:8px;\n      padding:4px 10px;\n      font-weight:800;\n      text-shadow:0 1px 0 #000;\n      cursor:pointer;\n    }\n    .btn{\n      margin-left:auto;\n      background: linear-gradient(#2c315f, #22264a);\n      color:#fff;\n      border:3px solid #2a2f57;\n      border-radius:12px;\n      font-weight:800; letter-spacing:.4px;\n      padding:8px 16px; cursor:pointer;\n      box-shadow:0 4px 0 #0b0f2b, 0 0 0 4px #0002 inset;\n      transition: transform .05s;\n    }\n    .btn:active{ transform: translateY(2px); box-shadow:0 2px 0 #0b0f2b, 0 0 0 4px #0002 inset; }
 
     /* 안내 텍스트 */
     .banner{
@@ -101,39 +76,12 @@
     .subtitle{ opacity:.9; margin-top:6px; font-size:14px; }
 
     /* 도트 스타일 별 (픽셀 아트 느낌) */
-    .star{
-      position:absolute; width:12px; height:12px; 
-      /* 중심 픽셀 */
-      background: var(--accent);
-      box-shadow:
-        /* + 모양 십자 픽셀 */
-        12px 0 0 0 var(--accent),
-        -12px 0 0 0 var(--accent),
-        0 12px 0 0 var(--accent),
-        0 -12px 0 0 var(--accent),
-        /* 테두리 반짝이 */
-        0 0 0 2px #0006,
-        12px 12px 0 0 #ffef98,
-        -12px 12px 0 0 #ffef98,
-        12px -12px 0 0 #ffef98,
-        -12px -12px 0 0 #ffef98;
-      image-rendering: pixelated;
-      transform: translateY(-24px); /* 시작 약간 위 */
-      cursor: pointer;
-      animation: fall linear forwards;
-    }
-    @keyframes fall {
+    .star{\n      position:absolute; width:26px; height:26px;\n      background: var(--accent);\n      /* 5각 별 모양 */\n      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);\n      filter: drop-shadow(0 0 6px #ffe9a8) drop-shadow(0 2px 0 #0005);\n      image-rendering: pixelated;\n      transform: translateY(-24px); /* 시작 약간 위 */\n      cursor: pointer;\n      animation: fall linear forwards;\n    }\n    @keyframes fall {
       to { transform: translateY(var(--fall-distance, 120%)); }
     }
 
     /* 클릭 시 나오는 소원 텍스트 */
-    .wish{
-      position:absolute; pointer-events:none; z-index:6;
-      font-weight:900; font-size:14px; color:#fff;
-      text-shadow: 0 1px 0 #000, 0 0 6px #fff6;
-      animation: pop .6s ease-out forwards;
-    }
-    @keyframes pop {
+    .wish{\n      position:absolute; pointer-events:none; z-index:6;\n      text-align:center;\n      font-weight:900; color:#fff;\n      text-shadow: 0 1px 0 #000, 0 0 6px #fff6;\n      animation: pop .7s ease-out forwards;\n    }\n    .wish .ko{ font-size:16px; display:block; letter-spacing:.4px; }\n    .wish .en{ font-size:11px; opacity:.85; margin-top:2px; display:block; }\n    @keyframes pop {
       0%{ transform: translate(-50%, -50%) scale(.8); opacity:0; }
       10%{ opacity:1; }
       100%{ transform: translate(-50%, -110%) scale(1.25); opacity:0; }
@@ -168,13 +116,7 @@
   <div class="twinkle" aria-hidden="true"></div>
 
   <div id="game" class="pixel" role="application" aria-label="별똥별 잡기 게임">
-    <div class="hud">
-      <div class="chip" aria-live="polite">점수 <span id="score" class="val">0</span></div>
-      <div class="chip">남은 시간 <span id="time" class="val">20</span>s</div>
-      <button id="startBtn" class="btn" aria-label="게임 시작 또는 다시 시작">START</button>
-    </div>
-
-    <div class="banner" id="banner">
+    <div class=\"hud\">\n      <div class=\"chip\" aria-live=\"polite\">점수 <span id=\"score\" class=\"val\">0<\/span><\/div>\n      <div class=\"chip\">남은 시간 <span id=\"time\" class=\"val\">20<\/span>s<\/div>\n      <div class=\"chip select\"><label for=\"speedSel\">속도<\/label>\n        <select id=\"speedSel\" aria-label=\"별 낙하 속도 선택\">\n          <option value=\"slow\">느림<\/option>\n          <option value=\"normal\" selected>보통<\/option>\n          <option value=\"fast\">빠름<\/option>\n          <option value=\"hyper\">엄청빠름<\/option>\n        <\/select>\n      <\/div>\n      <button id=\"startBtn\" class=\"btn\" aria-label=\"게임 시작 또는 다시 시작\">START<\/button>\n    <\/div>\n\n    <div class=\"banner\" id=\"banner\">
       <div class="title">⭐ 별똥별 잡기</div>
       <div class="subtitle">떨어지는 별을 클릭해 점수를 얻어요!<br>20초 안에 최대한 많이 잡아보세요 ✨</div>
     </div>
@@ -199,16 +141,9 @@
     const scoreEl = document.getElementById('score');
     const timeEl  = document.getElementById('time');
     const timebar = document.getElementById('timebar');
-    const startBtn= document.getElementById('startBtn');
-    const banner  = document.getElementById('banner');
-    const overEl  = document.getElementById('gameOver');
-    const retryBtn= document.getElementById('retryBtn');
-    const finalScoreEl = document.getElementById('finalScore');
-
-    let running = false;
-    let score = 0;
-    const DURATION = 20; // seconds
-    let remain = DURATION;
+    const startBtn= document.getElementById('startBtn');\n    const banner  = document.getElementById('banner');\n    const overEl  = document.getElementById('gameOver');\n    const retryBtn= document.getElementById('retryBtn');\n    const finalScoreEl = document.getElementById('finalScore');\n    const speedSel = document.getElementById('speedSel');\n\n    let running = false;\n    let score = 0;\n    const DURATION = 20; // seconds\n    let remain = DURATION;\n    let spawnTimer = null; // interval for stars\n    let tickTimer = null;  // countdown\n\n    // 속도 스케일 (값이 작을수록 더 빠르게 낙하/스폰)
+    const SPEED_MAP = { slow: 1.4, normal: 1.0, fast: 0.7, hyper: 0.5 };
+    let currentSpeed = SPEED_MAP['normal'];
     let spawnTimer = null; // interval for stars
     let tickTimer = null;  // countdown
 
@@ -227,7 +162,10 @@
       // 기존 별 제거
       document.querySelectorAll('.star').forEach(s=>s.remove());
 
-      // 스폰 루프: 350~700ms 사이 랜덤
+      // 현재 선택된 속도 반영
+      currentSpeed = SPEED_MAP[speedSel.value] || 1.0;
+
+      // 스폰 루프 시작
       spawnTimer && clearTimeout(spawnTimer);
       scheduleSpawn();
 
@@ -242,6 +180,7 @@
         timebar.style.width = pct + '%';
         if(left <= 0) endGame();
       }, 100);
+    }, 100);
     }
 
     function endGame(){
@@ -256,43 +195,41 @@
 
     function scheduleSpawn(){
       if(!running) return;
-      const delay = rand(280, 650);
+      const baseMin = 280, baseMax = 650; // ms
+      const delay = rand(baseMin, baseMax) * currentSpeed;
       spawnTimer = setTimeout(()=>{
         spawnStar();
         scheduleSpawn();
       }, delay);
+    }, delay);
     }
 
     function spawnStar(){
-      // 화면 가로 너비 안에서 무작위 X, 상단 위쪽에서 시작해 아래로 낙하
       const rect = gameEl.getBoundingClientRect();
-      const margin = 20; // 좌우 안전 여백
+      const margin = 26; // 좌우 안전 여백
       const x = rand(margin, rect.width - margin);
-      const duration = rand(2600, 5200); // 낙하 시간(ms)
+      const baseDurMin = 2600, baseDurMax = 5200;
+      const duration = rand(baseDurMin, baseDurMax) * currentSpeed; // 속도 반영
       const star = document.createElement('div');
       star.className = 'star';
-      star.style.left = (x - 6) + 'px'; // 중심 보정
-      star.style.top  = '-28px';
+      star.style.left = (x - 13) + 'px'; // 중심 보정 (26px/2)
+      star.style.top  = '-32px';
       star.style.setProperty('--fall-distance', rect.height + 80 + 'px');
-      star.style.animationDuration = duration + 'ms';
+      star.style.animationDuration = Math.max(600, duration) + 'ms';
 
       // 클릭 핸들러
       const onCatch = (e)=>{
         if(!running) return;
         e.stopPropagation();
-        // 점수 증가
         score += 1; scoreEl.textContent = score;
-        // 소원 텍스트 출력 (클릭 위치 기준)
-        const clickX = e.clientX - rect.left; // 게임 내 좌표
+        const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
         showWish(clickX, clickY);
-        // 별 제거
         star.removeEventListener('click', onCatch);
         star.remove();
       };
       star.addEventListener('click', onCatch, { once:true });
 
-      // 바닥 도달 시 제거
       star.addEventListener('animationend', ()=> star.remove());
 
       gameEl.appendChild(star);
@@ -301,17 +238,22 @@
     function showWish(x, y){
       const el = document.createElement('div');
       el.className = 'wish';
-      el.textContent = 'Make a wish!';
       el.style.left = x + 'px';
       el.style.top  = y + 'px';
+      el.innerHTML = '<span class="ko">잡았다!<\/span><span class="en">Make a wish!<\/span>';
       gameEl.appendChild(el);
-      setTimeout(()=> el.remove(), 650);
+      setTimeout(()=> el.remove(), 750);
     }
 
     function rand(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
     // 처음 로드시 포커스
     window.addEventListener('load', ()=> startBtn.focus());
+
+    // 속도 변경 즉시 반영 (게임 중에는 다음 스폰과 낙하 속도에 영향)
+    speedSel.addEventListener('change', ()=>{
+      currentSpeed = SPEED_MAP[speedSel.value] || 1.0;
+    });
   </script>
 </body>
 </html>
