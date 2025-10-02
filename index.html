@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>⭐ 별똥별 잡기 (Make a Wish!)</title>
+  <style>
+    :root{
+      --bg1:#0b1022; /* 밤하늘 남색 */
+      --bg2:#1a1f3b;
+      --accent:#ffd447; /* 아기자기 노랑 */
+      --accent-2:#ff8bd1; /* 포인트 핑크 */
+      --mint:#86f7e7; /* 포인트 민트 */
+      --panel:#11152a;
+    }
+
+    *{box-sizing:border-box;}
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: radial-gradient(1200px 800px at 70% -10%, #24306a 0%, transparent 60%),
+                  radial-gradient(800px 600px at 20% -20%, #1a245a 0%, transparent 60%),
+                  linear-gradient(180deg, var(--bg2), var(--bg1));
+      overflow:hidden;
+    }
+
+    /* 귀여운 도트 감성을 위해 전체 스케일을 살짝 키워 픽셀감 주기 */
+    .pixel {
+      image-rendering: pixelated;
+    }
+
+    /* 반짝이는 작은 별 배경 */
+    .twinkle{
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(2px 2px at 10% 20%, #fff8 50%, transparent 55%),
+        radial-gradient(1.5px 1.5px at 30% 80%, #fff6 50%, transparent 55%),
+        radial-gradient(1.5px 1.5px at 70% 30%, #fff6 50%, transparent 55%),
+        radial-gradient(2px 2px at 85% 60%, #fff8 50%, transparent 55%),
+        radial-gradient(1.2px 1.2px at 50% 50%, #fff5 50%, transparent 55%),
+        radial-gradient(1.2px 1.2px at 25% 55%, #fff5 50%, transparent 55%),
+        radial-gradient(1.2px 1.2px at 60% 75%, #fff5 50%, transparent 55%);
+      animation: twinkle 3s infinite ease-in-out alternate;
+      opacity:.7;
+    }
+    @keyframes twinkle {
+      0%{filter:brightness(1)}
+      100%{filter:brightness(1.6)}
+    }
+
+    /* 게임 영역 */
+    #game {
+      position:relative;
+      width: min(95vw, 820px);
+      height: min(70vh, 560px);
+      margin: 6vh auto 0;
+      border: 4px solid #2a2f57;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #0c1230, #090d22);
+      overflow:hidden;
+      box-shadow: 0 20px 60px #0008, inset 0 0 0 4px #0004;
+      z-index:1;
+    }
+
+    /* 상단 HUD */
+    .hud{
+      position:absolute; inset:12px 12px auto 12px; display:flex; gap:10px; align-items:center; z-index:5;
+    }
+    .chip{
+      background: var(--panel);
+      color:#e6ebff;
+      border:3px solid #2a2f57;
+      border-radius:12px;
+      padding:6px 12px;
+      font-weight:700;
+      text-shadow:0 1px 0 #000;
+      letter-spacing:.2px;
+    }
+    .chip .val{ color: var(--accent); margin-left:6px; }
+    .btn{
+      margin-left:auto;
+      background: linear-gradient(#2c315f, #22264a);
+      color:#fff;
+      border:3px solid #2a2f57;
+      border-radius:12px;
+      font-weight:800; letter-spacing:.4px;
+      padding:8px 16px; cursor:pointer;
+      box-shadow:0 4px 0 #0b0f2b, 0 0 0 4px #0002 inset;
+      transition: transform .05s;
+    }
+    .btn:active{ transform: translateY(2px); box-shadow:0 2px 0 #0b0f2b, 0 0 0 4px #0002 inset; }
+
+    /* 안내 텍스트 */
+    .banner{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      color:#f7f8ff; text-align:center; z-index:2;
+      text-shadow:0 2px 0 #0008;
+    }
+    .title{ font-size: clamp(22px, 4vw, 34px); font-weight:900; letter-spacing:.5px; }
+    .subtitle{ opacity:.9; margin-top:6px; font-size:14px; }
+
+    /* 도트 스타일 별 (픽셀 아트 느낌) */
+    .star{
+      position:absolute; width:12px; height:12px; 
+      /* 중심 픽셀 */
+      background: var(--accent);
+      box-shadow:
+        /* + 모양 십자 픽셀 */
+        12px 0 0 0 var(--accent),
+        -12px 0 0 0 var(--accent),
+        0 12px 0 0 var(--accent),
+        0 -12px 0 0 var(--accent),
+        /* 테두리 반짝이 */
+        0 0 0 2px #0006,
+        12px 12px 0 0 #ffef98,
+        -12px 12px 0 0 #ffef98,
+        12px -12px 0 0 #ffef98,
+        -12px -12px 0 0 #ffef98;
+      image-rendering: pixelated;
+      transform: translateY(-24px); /* 시작 약간 위 */
+      cursor: pointer;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(var(--fall-distance, 120%)); }
+    }
+
+    /* 클릭 시 나오는 소원 텍스트 */
+    .wish{
+      position:absolute; pointer-events:none; z-index:6;
+      font-weight:900; font-size:14px; color:#fff;
+      text-shadow: 0 1px 0 #000, 0 0 6px #fff6;
+      animation: pop .6s ease-out forwards;
+    }
+    @keyframes pop {
+      0%{ transform: translate(-50%, -50%) scale(.8); opacity:0; }
+      10%{ opacity:1; }
+      100%{ transform: translate(-50%, -110%) scale(1.25); opacity:0; }
+    }
+
+    /* 시간 바 */
+    .timebar-wrap{ position:absolute; left:12px; right:12px; bottom:12px; z-index:4; height:14px; border:3px solid #2a2f57; background:#0b0f2b; border-radius:10px; overflow:hidden; }
+    .timebar{ height:100%; width:100%; background: repeating-linear-gradient(45deg, var(--mint), var(--mint) 8px, #b2fff5 8px, #b2fff5 16px); transition: width .2s linear; }
+
+    /* 게임 종료 패널 */
+    .over{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(#0008,#0008);
+      color:#fff; text-align:center; z-index:10; backdrop-filter: blur(2px);
+      opacity:0; pointer-events:none; transition: opacity .2s;
+    }
+    .over.show{ opacity:1; pointer-events:auto; }
+    .card{
+      background: #121736; border:4px solid #2a2f57; border-radius:14px; padding:18px 20px; min-width: 260px;
+      box-shadow: 0 12px 40px #000c;
+    }
+    .card h2{margin:0 0 8px 0; font-size:20px}
+    .card p{margin:6px 0; opacity:.95}
+    .card .big{ font-size:28px; color:var(--accent); text-shadow:0 2px 0 #000 }
+    .card .actions{ margin-top:12px; display:flex; gap:8px; justify-content:center }
+
+    /* 접근성: 포커스 링 */
+    .btn:focus-visible{ outline:3px dashed var(--mint); outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <div class="twinkle" aria-hidden="true"></div>
+
+  <div id="game" class="pixel" role="application" aria-label="별똥별 잡기 게임">
+    <div class="hud">
+      <div class="chip" aria-live="polite">점수 <span id="score" class="val">0</span></div>
+      <div class="chip">남은 시간 <span id="time" class="val">20</span>s</div>
+      <button id="startBtn" class="btn" aria-label="게임 시작 또는 다시 시작">START</button>
+    </div>
+
+    <div class="banner" id="banner">
+      <div class="title">⭐ 별똥별 잡기</div>
+      <div class="subtitle">떨어지는 별을 클릭해 점수를 얻어요!<br>20초 안에 최대한 많이 잡아보세요 ✨</div>
+    </div>
+
+    <div class="timebar-wrap" aria-hidden="true"><div id="timebar" class="timebar"></div></div>
+
+    <div id="gameOver" class="over" aria-live="polite" aria-atomic="true">
+      <div class="card">
+        <h2>⏰ 시간 종료!</h2>
+        <p>당신의 소원 점수</p>
+        <div class="big" id="finalScore">0</div>
+        <div class="actions">
+          <button class="btn" id="retryBtn">RETRY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 게임 상태 ======
+    const gameEl = document.getElementById('game');
+    const scoreEl = document.getElementById('score');
+    const timeEl  = document.getElementById('time');
+    const timebar = document.getElementById('timebar');
+    const startBtn= document.getElementById('startBtn');
+    const banner  = document.getElementById('banner');
+    const overEl  = document.getElementById('gameOver');
+    const retryBtn= document.getElementById('retryBtn');
+    const finalScoreEl = document.getElementById('finalScore');
+
+    let running = false;
+    let score = 0;
+    const DURATION = 20; // seconds
+    let remain = DURATION;
+    let spawnTimer = null; // interval for stars
+    let tickTimer = null;  // countdown
+
+    // 접근성: 스페이스/엔터로 시작
+    startBtn.addEventListener('click', startGame);
+    retryBtn.addEventListener('click', startGame);
+
+    function startGame(){
+      // 초기화
+      running = true; score = 0; remain = DURATION;
+      scoreEl.textContent = score; timeEl.textContent = remain;
+      timebar.style.width = '100%';
+      banner.style.display = 'none';
+      overEl.classList.remove('show');
+
+      // 기존 별 제거
+      document.querySelectorAll('.star').forEach(s=>s.remove());
+
+      // 스폰 루프: 350~700ms 사이 랜덤
+      spawnTimer && clearTimeout(spawnTimer);
+      scheduleSpawn();
+
+      // 타이머 루프
+      clearInterval(tickTimer);
+      const startedAt = performance.now();
+      tickTimer = setInterval(()=>{
+        const elapsed = Math.floor((performance.now() - startedAt)/1000);
+        const left = Math.max(0, DURATION - elapsed);
+        remain = left; timeEl.textContent = left;
+        const pct = (left / DURATION) * 100;
+        timebar.style.width = pct + '%';
+        if(left <= 0) endGame();
+      }, 100);
+    }
+
+    function endGame(){
+      running = false;
+      clearInterval(tickTimer); tickTimer = null;
+      spawnTimer && clearTimeout(spawnTimer); spawnTimer = null;
+      // 남아있는 별 클릭 못하게
+      document.querySelectorAll('.star').forEach(s=> s.style.pointerEvents='none');
+      finalScoreEl.textContent = score;
+      overEl.classList.add('show');
+    }
+
+    function scheduleSpawn(){
+      if(!running) return;
+      const delay = rand(280, 650);
+      spawnTimer = setTimeout(()=>{
+        spawnStar();
+        scheduleSpawn();
+      }, delay);
+    }
+
+    function spawnStar(){
+      // 화면 가로 너비 안에서 무작위 X, 상단 위쪽에서 시작해 아래로 낙하
+      const rect = gameEl.getBoundingClientRect();
+      const margin = 20; // 좌우 안전 여백
+      const x = rand(margin, rect.width - margin);
+      const duration = rand(2600, 5200); // 낙하 시간(ms)
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = (x - 6) + 'px'; // 중심 보정
+      star.style.top  = '-28px';
+      star.style.setProperty('--fall-distance', rect.height + 80 + 'px');
+      star.style.animationDuration = duration + 'ms';
+
+      // 클릭 핸들러
+      const onCatch = (e)=>{
+        if(!running) return;
+        e.stopPropagation();
+        // 점수 증가
+        score += 1; scoreEl.textContent = score;
+        // 소원 텍스트 출력 (클릭 위치 기준)
+        const clickX = e.clientX - rect.left; // 게임 내 좌표
+        const clickY = e.clientY - rect.top;
+        showWish(clickX, clickY);
+        // 별 제거
+        star.removeEventListener('click', onCatch);
+        star.remove();
+      };
+      star.addEventListener('click', onCatch, { once:true });
+
+      // 바닥 도달 시 제거
+      star.addEventListener('animationend', ()=> star.remove());
+
+      gameEl.appendChild(star);
+    }
+
+    function showWish(x, y){
+      const el = document.createElement('div');
+      el.className = 'wish';
+      el.textContent = 'Make a wish!';
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+      gameEl.appendChild(el);
+      setTimeout(()=> el.remove(), 650);
+    }
+
+    function rand(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+    // 처음 로드시 포커스
+    window.addEventListener('load', ()=> startBtn.focus());
+  </script>
+</body>
+</html>
